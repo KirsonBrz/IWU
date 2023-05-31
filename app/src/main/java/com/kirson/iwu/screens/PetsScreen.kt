@@ -44,18 +44,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alexstyl.swipeablecard.Direction
 import com.alexstyl.swipeablecard.ExperimentalSwipeableCardApi
+import com.alexstyl.swipeablecard.SwipeableCardState
 import com.alexstyl.swipeablecard.rememberSwipeableCardState
 import com.alexstyl.swipeablecard.swipableCard
 import com.example.compose.IWUTheme
+import com.kirson.iwu.MainModel
 import com.kirson.iwu.entities.MatchProfile
 import com.kirson.iwu.entities.profiles
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSwipeableCardApi::class)
 @Composable
-fun PetsScreen() {
+fun PetsScreen(
+    viewModel: MainModel = viewModel(),
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -81,7 +86,8 @@ fun PetsScreen() {
                     .padding(24.dp)
                     .fillMaxSize()
                     .aspectRatio(1f)
-                    .align(Alignment.Center)) {
+                    .align(Alignment.Center)
+            ) {
                 states.forEach { (matchProfile, state) ->
                     if (state.swipedDirection == null) {
                         ProfileCard(
@@ -106,6 +112,9 @@ fun PetsScreen() {
                     LaunchedEffect(matchProfile, state.swipedDirection) {
                         if (state.swipedDirection != null) {
                             hint = "Вы свайпнули ${stringFrom(state.swipedDirection!!)}"
+                            if (state.swipedDirection == Direction.Right)
+                                viewModel.addLikedPet(matchProfile)
+
                         }
                     }
                 }
@@ -160,7 +169,11 @@ private fun CircleButton(
             .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
         onClick = onClick
     ) {
-        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary
+        )
     }
 }
 
@@ -171,17 +184,21 @@ private fun ProfileCard(
 ) {
     Card(modifier) {
         Box {
-            Image(contentScale = ContentScale.Crop,
+            Image(
+                contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
                 painter = painterResource(matchProfile.drawableResId),
-                contentDescription = null)
+                contentDescription = null
+            )
             Scrim(Modifier.align(Alignment.BottomCenter))
             Column(Modifier.align(Alignment.BottomStart)) {
-                Text(text = matchProfile.name,
+                Text(
+                    text = matchProfile.name,
                     color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(10.dp))
+                    modifier = Modifier.padding(10.dp)
+                )
             }
         }
     }
@@ -221,7 +238,8 @@ fun Scrim(modifier: Modifier = Modifier) {
         modifier
             .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black)))
             .height(180.dp)
-            .fillMaxWidth())
+            .fillMaxWidth()
+    )
 }
 
 
@@ -229,7 +247,7 @@ fun Scrim(modifier: Modifier = Modifier) {
 @Composable
 fun PetsScreenPreview() {
     IWUTheme {
-        PetsScreen()
+        PetsScreen(viewModel = MainModel())
     }
 
 }

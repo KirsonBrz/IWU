@@ -3,10 +3,14 @@ package com.kirson.iwu
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -14,17 +18,29 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,16 +48,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.IWUTheme
-import com.kirson.iwu.ui.theme.md_theme_dark_background
-import com.kirson.iwu.ui.theme.md_theme_light_background
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.kirson.iwu.components.IWULogo
 import com.kirson.iwu.entities.NavigationItem
 import com.kirson.iwu.screens.ChatScreen
+import com.kirson.iwu.screens.LoginScreen
 import com.kirson.iwu.screens.PetsScreen
 import com.kirson.iwu.screens.ProfileScreen
 import com.kirson.iwu.screens.ReactionsScreen
+import com.kirson.iwu.screens.RegistrationScreen
 import com.kirson.iwu.screens.ServicesScreen
+import com.kirson.iwu.ui.theme.md_theme_dark_background
+import com.kirson.iwu.ui.theme.md_theme_light_background
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +91,7 @@ fun TransparentSystemBars() {
             darkIcons = !useDarkIcons
         )
         systemUiController.setNavigationBarColor(
-            color = if(!useDarkIcons) md_theme_light_background else md_theme_dark_background,
+            color = if (!useDarkIcons) md_theme_light_background else md_theme_dark_background,
             darkIcons = !useDarkIcons,
             navigationBarContrastEnforced = false
         )
@@ -79,14 +100,55 @@ fun TransparentSystemBars() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTextApi::class)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val title = remember { mutableStateOf("") }
+    val showTopBar = remember { mutableStateOf(false) }
+
+    val getTitle: (String) -> Unit = { screenTitle ->
+        title.value = screenTitle
+    }
+    val isNotPetScreen: (Boolean) -> Unit = { isNotPetScreen ->
+        showTopBar.value = isNotPetScreen
+    }
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            AnimatedVisibility(visible = showTopBar.value,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                CenterAlignedTopAppBar(
+                    title = { Text(
+                        text = title.value,
+                        style = TextStyle(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary
+                                )
+                            ),
+                            fontWeight = FontWeight.Bold,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 28.sp
+                        ),
+                    ) },
+                    navigationIcon = {
+                        IWULogo()
+                    },
+                    scrollBehavior = scrollBehavior
+                )
+            }
+
+        },
         bottomBar = { BottomNavigationBar(navController) },
         content = { padding ->
             Box(modifier = Modifier.padding(bottom = padding.calculateBottomPadding())) {
-                Navigation(navController = navController)
+                Navigation(topPadding = padding.calculateTopPadding(), navController = navController, getTitle, isNotPetScreen)
             }
         },
         // Set background color to avoid the white flashing when you switch between screens
@@ -102,22 +164,57 @@ fun MainScreenPreview() {
 }
 
 @Composable
-fun Navigation(navController: NavHostController) {
-    NavHost(navController, startDestination = NavigationItem.Pets.route) {
+fun Navigation(
+    topPadding: Dp,
+    navController: NavHostController,
+    sendTitle: (String) -> Unit,
+    isNotPetScreen: (Boolean) -> Unit,
+    viewModel: MainModel = hiltViewModel()
+) {
+    NavHost(navController, startDestination = NavigationItem.Login.route) {
+
+
+
+        composable(NavigationItem.Login.route) {
+            sendTitle("")
+            isNotPetScreen(true)
+            LoginScreen(navController, topPadding)
+        }
+
+        composable(NavigationItem.Registration.route) {
+            sendTitle("")
+            isNotPetScreen(true)
+            RegistrationScreen(navController, topPadding)
+        }
+
         composable(NavigationItem.Pets.route) {
-            PetsScreen()
+
+            sendTitle("")
+            isNotPetScreen(false)
+            PetsScreen(viewModel)
         }
         composable(NavigationItem.Services.route) {
-            ServicesScreen()
+
+            sendTitle("Сервисы")
+            isNotPetScreen(true)
+            ServicesScreen(viewModel,topPadding = topPadding)
         }
         composable(NavigationItem.Reactions.route) {
-            ReactionsScreen()
+            sendTitle("Реакции")
+            isNotPetScreen(true)
+            ReactionsScreen(viewModel,topPadding = topPadding)
         }
         composable(NavigationItem.Chat.route) {
-            ChatScreen()
+
+            sendTitle("Чат")
+            isNotPetScreen(true)
+            ChatScreen(viewModel, topPadding = topPadding)
         }
         composable(NavigationItem.Profile.route) {
-            ProfileScreen()
+
+            sendTitle("Профиль")
+            isNotPetScreen(true)
+            ProfileScreen(viewModel, topPadding = topPadding)
         }
     }
 }
@@ -146,10 +243,11 @@ fun BottomNavigationBar(navController: NavController) {
         NavigationItem.Chat,
         NavigationItem.Profile
     )
-    BottomNavigation(backgroundColor = MaterialTheme.colorScheme.background,
-        modifier= Modifier.navigationBarsPadding(),
+    BottomNavigation(
+        backgroundColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.navigationBarsPadding(),
 
-    ) {
+        ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         items.forEach { item ->
