@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -23,17 +24,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +61,7 @@ fun RegistrationScreen(
     }
     val email = remember { mutableStateOf(TextFieldValue()) }
     val countryCode = remember { mutableStateOf(TextFieldValue()) }
-    val mobileNo = remember { mutableStateOf(TextFieldValue()) }
+    val mobileNo = remember { mutableStateOf("") }
     val password = remember { mutableStateOf(TextFieldValue()) }
     val confirmPassword = remember { mutableStateOf(TextFieldValue()) }
 
@@ -76,10 +81,10 @@ fun RegistrationScreen(
 
         Text(text = buildAnnotatedString {
             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                append("R")
+                append("Р")
             }
-            withStyle(style = SpanStyle(color = Color.Black)) {
-                append("egistration")
+            withStyle(style = SpanStyle()) {
+                append("егистрация")
             }
         }, fontSize = 30.sp)
         Spacer(Modifier.size(16.dp))
@@ -95,11 +100,11 @@ fun RegistrationScreen(
             modifier = Modifier.fillMaxWidth(),
             isError = nameErrorState.value,
             label = {
-                Text(text = "Name*")
+                Text(text = "Имя*")
             },
         )
         if (nameErrorState.value) {
-            Text(text = "Required", color = MaterialTheme.colorScheme.primary)
+            Text(text = "Обязательное поле", color = MaterialTheme.colorScheme.primary)
         }
         Spacer(Modifier.size(16.dp))
 
@@ -119,15 +124,15 @@ fun RegistrationScreen(
             },
         )
         if (emailErrorState.value) {
-            Text(text = "Required", color = MaterialTheme.colorScheme.primary)
+            Text(text = "Обязательное поле", color = MaterialTheme.colorScheme.primary)
         }
         Spacer(modifier = Modifier.size(16.dp))
         Row() {
             OutlinedTextField(
                 value = countryCode.value,
                 onValueChange = {
-
-                    countryCode.value = it
+                    if (it.text.length <= 1)
+                        countryCode.value = it
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -135,24 +140,12 @@ fun RegistrationScreen(
                 ),
                 modifier = Modifier.fillMaxWidth(0.3f),
                 label = {
-                    Text(text = "Code")
+                    Text(text = "Код")
                 },
+                prefix = { Text("+") },
             )
             Spacer(modifier = Modifier.size(16.dp))
-            OutlinedTextField(
-                value = mobileNo.value,
-                onValueChange = {
-
-                    mobileNo.value = it
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Phone,
-                    autoCorrect = false
-                ),
-                label = {
-                    Text(text = "Mobile No")
-                },
-            )
+            PhoneField(phone = mobileNo.value, onPhoneChanged = { mobileNo.value = it })
         }
 
         Spacer(Modifier.size(16.dp))
@@ -165,9 +158,11 @@ fun RegistrationScreen(
                 }
                 password.value = it
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .imePadding(),
             label = {
-                Text(text = "Password*")
+                Text(text = "Пароль*")
             },
             isError = passwordErrorState.value,
             trailingIcon = {
@@ -184,7 +179,7 @@ fun RegistrationScreen(
             visualTransformation = if (passwordVisibility.value) PasswordVisualTransformation() else VisualTransformation.None
         )
         if (passwordErrorState.value) {
-            Text(text = "Required", color = MaterialTheme.colorScheme.primary)
+            Text(text = "Обязательное поле", color = MaterialTheme.colorScheme.primary)
         }
 
         Spacer(Modifier.size(16.dp))
@@ -197,10 +192,12 @@ fun RegistrationScreen(
                 }
                 confirmPassword.value = it
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .imePadding(),
             isError = confirmPasswordErrorState.value,
             label = {
-                Text(text = "Confirm Password*")
+                Text(text = "Подтвердите пароль*")
             },
             trailingIcon = {
                 IconButton(onClick = {
@@ -217,7 +214,7 @@ fun RegistrationScreen(
         )
         if (confirmPasswordErrorState.value) {
             val msg = if (confirmPassword.value.text.isEmpty()) {
-                "Required"
+                "Обязательное поле"
             } else if (confirmPassword.value.text != password.value.text) {
                 "Password not matching"
             } else {
@@ -252,10 +249,10 @@ fun RegistrationScreen(
                     else -> {
                         Toast.makeText(
                             context,
-                            "Registered successfully",
+                            "Вы успешно зарегистрировались!",
                             Toast.LENGTH_SHORT
                         ).show()
-                        navController.navigate("login_screen") {
+                        navController.navigate(NavigationItem.Login.route) {
                             popUpTo(navController.graph.startDestinationId)
                             launchSingleTop = true
                         }
@@ -263,7 +260,7 @@ fun RegistrationScreen(
                 }
             },
             content = {
-                Text(text = "Register")
+                Text(text = "Регистрация")
             },
             modifier = Modifier.fillMaxWidth(),
         )
@@ -275,15 +272,94 @@ fun RegistrationScreen(
                     launchSingleTop = true
                 }
             }) {
-                Text(text = "Login", color = MaterialTheme.colorScheme.primary)
+                Text(text = "Вход", color = MaterialTheme.colorScheme.primary)
             }
         }
     }
 }
 
+@Composable
+fun PhoneField(
+    phone: String,
+    modifier: Modifier = Modifier,
+    mask: String = "(000) 000 00 00",
+    maskNumber: Char = '0',
+    onPhoneChanged: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = phone,
+        onValueChange = { it ->
+            onPhoneChanged(it.take(mask.count { it == maskNumber }))
+        },
+        label = {
+            Text(text = "Номер телефона")
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Phone,
+            autoCorrect = false
+        ),
+        visualTransformation = PhoneVisualTransformation(mask, maskNumber),
+        modifier = modifier.fillMaxWidth(),
+    )
+}
+
+class PhoneVisualTransformation(val mask: String, val maskNumber: Char) : VisualTransformation {
+
+    private val maxLength = mask.count { it == maskNumber }
+
+    override fun filter(text: AnnotatedString): TransformedText {
+        val trimmed = if (text.length > maxLength) text.take(maxLength) else text
+
+        val annotatedString = buildAnnotatedString {
+            if (trimmed.isEmpty()) return@buildAnnotatedString
+
+            var maskIndex = 0
+            var textIndex = 0
+            while (textIndex < trimmed.length && maskIndex < mask.length) {
+                if (mask[maskIndex] != maskNumber) {
+                    val nextDigitIndex = mask.indexOf(maskNumber, maskIndex)
+                    append(mask.substring(maskIndex, nextDigitIndex))
+                    maskIndex = nextDigitIndex
+                }
+                append(trimmed[textIndex++])
+                maskIndex++
+            }
+        }
+
+        return TransformedText(annotatedString, PhoneOffsetMapper(mask, maskNumber))
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PhoneVisualTransformation) return false
+        if (mask != other.mask) return false
+        if (maskNumber != other.maskNumber) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return mask.hashCode()
+    }
+}
+
+private class PhoneOffsetMapper(val mask: String, val numberChar: Char) : OffsetMapping {
+
+    override fun originalToTransformed(offset: Int): Int {
+        var noneDigitCount = 0
+        var i = 0
+        while (i < offset + noneDigitCount) {
+            if (mask[i++] != numberChar) noneDigitCount++
+        }
+        return offset + noneDigitCount
+    }
+
+    override fun transformedToOriginal(offset: Int): Int =
+        offset - mask.take(offset).count { it != numberChar }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun RegistrationScreenPreview(){
+fun RegistrationScreenPreview() {
     IWUTheme {
         RegistrationScreen(navController = rememberNavController(), topPadding = 40.dp)
     }

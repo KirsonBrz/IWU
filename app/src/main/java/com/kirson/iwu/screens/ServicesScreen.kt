@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.compose.IWUTheme
 import com.kirson.iwu.MainModel
 import com.kirson.iwu.R
+import com.kirson.iwu.ui.theme.md_theme_light_onPrimary
 
 @Composable
 fun ServicesScreen(
@@ -111,7 +112,7 @@ fun NewsCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = md_theme_light_onPrimary,
                     modifier = Modifier.padding(horizontal = 10.dp)
                 )
                 Text(
@@ -119,7 +120,7 @@ fun NewsCard(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(10.dp),
                     minLines = 2,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = md_theme_light_onPrimary
                 )
             }
         }
@@ -145,7 +146,7 @@ fun VetCard() {
                 Text(
                     text = "В поиске ветеринара?",
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = md_theme_light_onPrimary,
                     modifier = Modifier.padding(horizontal = 10.dp)
                 )
                 Text(
@@ -153,7 +154,7 @@ fun VetCard() {
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(10.dp),
                     minLines = 2,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = md_theme_light_onPrimary
                 )
             }
             FilledTonalButton(
@@ -162,7 +163,7 @@ fun VetCard() {
                     .align(Alignment.BottomEnd)
                     .padding(10.dp),
             ) {
-                Text("Заказать")
+                Text("Найти")
             }
         }
     }

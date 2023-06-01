@@ -58,18 +58,12 @@ fun LoginScreen(
     ) {
         Text(text = buildAnnotatedString {
             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                append("S")
+                append("В")
             }
-            withStyle(style = SpanStyle(color = Color.Black)) {
-                append("ign")
+            withStyle(style = SpanStyle()) {
+                append("ойти")
             }
 
-            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                append(" I")
-            }
-            withStyle(style = SpanStyle(color = Color.Black)) {
-                append("n")
-            }
         }, fontSize = 30.sp)
         Spacer(Modifier.size(16.dp))
         OutlinedTextField(
@@ -83,11 +77,11 @@ fun LoginScreen(
             isError = emailErrorState.value,
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text(text = "Enter Email*")
+                Text(text = "Email*")
             },
         )
         if (emailErrorState.value) {
-            Text(text = "Required", color = MaterialTheme.colorScheme.primary)
+            Text(text = "Обязательное поле", color = MaterialTheme.colorScheme.primary)
         }
         Spacer(Modifier.size(16.dp))
         val passwordVisibility = remember { mutableStateOf(true) }
@@ -103,7 +97,7 @@ fun LoginScreen(
             isError = passwordErrorState.value,
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text(text = "Enter Password*")
+                Text(text = "Пароль*")
             },
             trailingIcon = {
                 IconButton(onClick = {
@@ -120,7 +114,7 @@ fun LoginScreen(
         )
 
         if (passwordErrorState.value) {
-            Text(text = "Required", color = MaterialTheme.colorScheme.primary)
+            Text(text = "Обязательное поле", color = MaterialTheme.colorScheme.primary)
         }
         Spacer(Modifier.size(16.dp))
         Button(
@@ -137,17 +131,16 @@ fun LoginScreen(
                     else -> {
                         passwordErrorState.value = false
                         emailErrorState.value = false
-                        Toast.makeText(
-                            context,
-                            "Logged in successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        navController.navigate(NavigationItem.Pets.route){
+                            popUpTo(NavigationItem.Pets.route)
+                            launchSingleTop = true
+                        }
                     }
                 }
 
             },
             content = {
-                Text(text = "Login", color = Color.White)
+                Text(text = "Вход")
             },
             modifier = Modifier.fillMaxWidth(),
         )
@@ -159,7 +152,7 @@ fun LoginScreen(
                     launchSingleTop = true
                 }
             }) {
-                Text(text = "Register ?", color = MaterialTheme.colorScheme.primary)
+                Text(text = "Регистрация", color = MaterialTheme.colorScheme.primary)
             }
         }
     }

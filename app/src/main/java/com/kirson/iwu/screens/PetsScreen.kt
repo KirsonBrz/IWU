@@ -54,6 +54,7 @@ import com.example.compose.IWUTheme
 import com.kirson.iwu.MainModel
 import com.kirson.iwu.entities.MatchProfile
 import com.kirson.iwu.entities.profiles
+import com.kirson.iwu.ui.theme.md_theme_light_onPrimary
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSwipeableCardApi::class)
@@ -194,7 +195,7 @@ private fun ProfileCard(
             Column(Modifier.align(Alignment.BottomStart)) {
                 Text(
                     text = matchProfile.name,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = md_theme_light_onPrimary,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(10.dp)

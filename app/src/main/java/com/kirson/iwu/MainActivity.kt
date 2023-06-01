@@ -104,7 +104,7 @@ fun TransparentSystemBars() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val title = remember { mutableStateOf("") }
     val showTopBar = remember { mutableStateOf(false) }
 
@@ -134,7 +134,7 @@ fun MainScreen() {
                             ),
                             fontWeight = FontWeight.Bold,
                             fontStyle = FontStyle.Italic,
-                            fontSize = 28.sp
+                            fontSize = 28.sp,
                         ),
                     ) },
                     navigationIcon = {
@@ -172,7 +172,6 @@ fun Navigation(
     viewModel: MainModel = hiltViewModel()
 ) {
     NavHost(navController, startDestination = NavigationItem.Login.route) {
-
 
 
         composable(NavigationItem.Login.route) {
@@ -268,10 +267,8 @@ fun BottomNavigationBar(navController: NavController) {
                         // Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations
                         // on the back stack as users select items
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
-                            }
+                        popUpTo(NavigationItem.Pets.route) {
+                            saveState = true
                         }
                         // Avoid multiple copies of the same destination when
                         // reselecting the same item

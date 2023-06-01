@@ -6,21 +6,22 @@ import com.kirson.iwu.R
 data class MatchProfile(
     val name: String,
     @DrawableRes val drawableResId: Int,
+    val pro: Boolean,
 )
 
 val profiles = listOf(
-    MatchProfile("Erlich Bachman", R.drawable.cats),
-    MatchProfile("Richard Hendricks", R.drawable.jacket),
-    MatchProfile("Laurie Bream", R.drawable.vet),
-    MatchProfile("Russ Hanneman", R.drawable.walks),
-    MatchProfile("Dinesh Chugtai", R.drawable.hub),
-    MatchProfile("Monica Hall", R.drawable.match),
-    MatchProfile("Bertram Gilfoyle", R.drawable.meet),
+    MatchProfile("Erlich Bachman", R.drawable.cats, true),
+    MatchProfile("Richard Hendricks", R.drawable.jacket, false),
+    MatchProfile("Laurie Bream", R.drawable.vet, true),
+    MatchProfile("Russ Hanneman", R.drawable.walks, false),
+    MatchProfile("Dinesh Chugtai", R.drawable.hub, false),
+    MatchProfile("Monica Hall", R.drawable.match, false),
+    MatchProfile("Bertram Gilfoyle", R.drawable.meet, false),
 
-    MatchProfile("Peter Gregory", R.drawable.paw),
-    MatchProfile("Jared Dunn", R.drawable.hub),
-    MatchProfile("Nelson Bighetti", R.drawable.match),
-    MatchProfile("Gavin Belson", R.drawable.meet),
-    MatchProfile("Jian Yang", R.drawable.paw),
-    MatchProfile("Jack Barker", R.drawable.hub),
+    MatchProfile("Peter Gregory", R.drawable.paw, false),
+    MatchProfile("Jared Dunn", R.drawable.hub, false),
+    MatchProfile("Nelson Bighetti", R.drawable.match, false),
+    MatchProfile("Gavin Belson", R.drawable.meet, false),
+    MatchProfile("Jian Yang", R.drawable.paw, false),
+    MatchProfile("Jack Barker", R.drawable.hub, false),
 )
