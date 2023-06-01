@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bolt
@@ -70,14 +69,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.compose.IWUTheme
 import com.kirson.iwu.MainModel
 import com.kirson.iwu.R
+import com.kirson.iwu.entities.NavigationItem
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    navController: NavController,
     viewModel: MainModel, topPadding: Dp
 ) {
     Column(
@@ -99,7 +102,14 @@ fun ProfileScreen(
 
 
         BottomSheetScaffold(
-            sheetContent = { BottomScreen() },
+            sheetContent = {
+                BottomScreen {
+                    navController.navigate(NavigationItem.Empty.route) {
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                }
+            },
             scaffoldState = bottomState,
             sheetPeekHeight = 300.dp
         )
@@ -283,8 +293,9 @@ fun ProfileScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomScreen() {
+fun BottomScreen(navToEmpty: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -293,9 +304,10 @@ fun BottomScreen() {
     ) {
 
         Card(
+            onClick = { navToEmpty() },
             modifier = Modifier.size(122.dp, 141.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color.Transparent
+                containerColor = Color.Transparent,
             ),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -358,6 +370,7 @@ fun BottomScreen() {
         }
 
         Card(
+            onClick = { navToEmpty() },
             modifier = Modifier.size(122.dp, 141.dp), colors = CardDefaults.cardColors(
                 containerColor = Color.Transparent
             )
@@ -420,6 +433,7 @@ fun BottomScreen() {
         }
 
         Card(
+            onClick = { navToEmpty() },
             modifier = Modifier.size(122.dp, 141.dp), colors = CardDefaults.cardColors(
                 containerColor = Color.Transparent
             )
@@ -534,7 +548,7 @@ fun BottomScreen() {
         )
         Spacer(modifier = Modifier.height(25.dp))
         ElevatedButton(
-            onClick = { /*TODO*/ }) {
+            onClick = { navToEmpty() }) {
             Text(
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle()) {
@@ -562,14 +576,13 @@ fun BottomScreen() {
 }
 
 
-
 @Preview(
     showBackground = true,
 )
 @Composable
 fun ProfileScreenPreview() {
     IWUTheme {
-        ProfileScreen(viewModel = MainModel(), 40.dp)
+        ProfileScreen(navController = rememberNavController(), viewModel = MainModel(), 40.dp)
     }
 
 }
@@ -581,7 +594,9 @@ fun ProfileScreenPreview() {
 fun BottomScreenPreview() {
     IWUTheme {
         Column {
-            BottomScreen()
+            BottomScreen {
+
+            }
         }
 
     }

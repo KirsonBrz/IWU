@@ -32,6 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.compose.IWUTheme
 import com.kirson.iwu.MainActivity
 import com.kirson.iwu.MainModel
@@ -41,6 +43,7 @@ import com.kirson.iwu.entities.profiles
 
 @Composable
 fun ReactionsScreen(
+    navController: NavController,
     viewModel: MainModel,
     topPadding: Dp
 ) {
@@ -120,7 +123,7 @@ fun LikedPetsItem(profile: MatchProfile) {
 @Composable
 fun ReactionsScreenPreview() {
     IWUTheme {
-        ReactionsScreen(viewModel = MainModel(), 40.dp)
+        ReactionsScreen(navController = rememberNavController(), viewModel = MainModel(), 40.dp)
     }
 
 }

@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kirson.iwu.entities.MatchProfile
+import com.kirson.iwu.entities.NewsItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,6 +24,10 @@ class MainModel @Inject constructor() : ViewModel() {
     val profilePhoto: State<ImageBitmap?>
         get() = _profilePhoto
 
+    private val _selectedNews = mutableStateOf<NewsItem?>(null)
+    val selectedNews: State<NewsItem?>
+        get() = _selectedNews
+
 
     fun addLikedPet(pet: MatchProfile) {
         viewModelScope.launch {
@@ -32,6 +37,10 @@ class MainModel @Inject constructor() : ViewModel() {
 
     fun setProfilePhoto(chosenPhoto: ImageBitmap) {
         _profilePhoto.value = chosenPhoto
+    }
+
+    fun setNews(news: NewsItem) {
+        _selectedNews.value = news
     }
 
 }

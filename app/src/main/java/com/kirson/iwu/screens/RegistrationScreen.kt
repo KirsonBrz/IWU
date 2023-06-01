@@ -216,7 +216,7 @@ fun RegistrationScreen(
             val msg = if (confirmPassword.value.text.isEmpty()) {
                 "Обязательное поле"
             } else if (confirmPassword.value.text != password.value.text) {
-                "Password not matching"
+                "Пароли не совпадают"
             } else {
                 ""
             }

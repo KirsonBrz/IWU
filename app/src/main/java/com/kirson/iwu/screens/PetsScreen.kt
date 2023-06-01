@@ -45,6 +45,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.alexstyl.swipeablecard.Direction
 import com.alexstyl.swipeablecard.ExperimentalSwipeableCardApi
 import com.alexstyl.swipeablecard.SwipeableCardState
@@ -60,6 +62,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalSwipeableCardApi::class)
 @Composable
 fun PetsScreen(
+    navController: NavController,
     viewModel: MainModel = viewModel(),
 ) {
     Box(
@@ -248,7 +251,7 @@ fun Scrim(modifier: Modifier = Modifier) {
 @Composable
 fun PetsScreenPreview() {
     IWUTheme {
-        PetsScreen(viewModel = MainModel())
+        PetsScreen(navController = rememberNavController(), viewModel = MainModel())
     }
 
 }

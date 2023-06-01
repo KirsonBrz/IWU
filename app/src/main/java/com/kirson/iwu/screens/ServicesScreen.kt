@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,13 +26,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.compose.IWUTheme
 import com.kirson.iwu.MainModel
 import com.kirson.iwu.R
+import com.kirson.iwu.entities.NavigationItem
+import com.kirson.iwu.entities.NewsItem
+import com.kirson.iwu.entities.news
 import com.kirson.iwu.ui.theme.md_theme_light_onPrimary
 
 @Composable
 fun ServicesScreen(
+    navController: NavController,
     viewModel: MainModel = viewModel(),
     topPadding: Dp
 ) {
@@ -42,7 +49,7 @@ fun ServicesScreen(
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(20.dp))
-        VetCard()
+        VetCard(navController)
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Новости",
@@ -57,66 +64,84 @@ fun ServicesScreen(
             Row(modifier = Modifier.height(270.dp)) {
                 NewsCard(
                     modifier = Modifier.weight(1f),
-                    title = "Помогите найти дом!",
-                    subtitle = "Эти милые котята нуждаются в любящих хозяевах....",
-                    imageID = R.drawable.cats
-                )
+                    news[0]
+                ) {
+                    viewModel.setNews(it)
+                    navController.navigate(NavigationItem.News.route) {
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                }
                 Spacer(modifier = Modifier.weight(0.05f))
                 NewsCard(
                     modifier = Modifier.weight(1f),
-                    title = "Гуляйте вместе!",
-                    subtitle = "Совместные прогулки повышают уровень счастья...",
-                    imageID = R.drawable.walks
-
-                )
+                    news[1]
+                ) {
+                    viewModel.setNews(it)
+                    navController.navigate(NavigationItem.News.route) {
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.height(240.dp)) {
                 NewsCard(
                     modifier = Modifier.weight(1f),
-                    title = "Одежда для собак: правда и вымысел",
-                    subtitle = "Самые популярные мифы и заблуждения...",
-                    imageID = R.drawable.jacket
-                )
+                    news[2]
+                ) {
+                    viewModel.setNews(it)
+                    navController.navigate(NavigationItem.News.route) {
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                }
                 Spacer(modifier = Modifier.weight(0.05f))
                 NewsCard(
                     modifier = Modifier.weight(1f),
-                    title = "Есть, где погулять!",
-                    subtitle = "Зоны для выгула питомцев на карте...",
-                    imageID = R.drawable.map
-                )
+                    news[3]
+                ) {
+                    viewModel.setNews(it)
+                    navController.navigate(NavigationItem.News.route) {
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewsCard(
     modifier: Modifier,
-    title: String,
-    subtitle: String,
-    imageID: Int,
+    item: NewsItem,
+    navToNews: (NewsItem) -> Unit,
 ) {
+
     Card(
-        modifier
-    ) {
+        onClick = {navToNews(item)},
+        modifier,
+
+        ) {
         Box {
             Image(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
-                painter = painterResource(imageID),
+                painter = painterResource(item.drawableResId),
                 contentDescription = null
             )
             Scrim(Modifier.align(Alignment.BottomCenter))
             Column(Modifier.align(Alignment.BottomStart)) {
                 Text(
-                    text = title,
+                    text = item.title,
                     style = MaterialTheme.typography.titleLarge,
                     color = md_theme_light_onPrimary,
                     modifier = Modifier.padding(horizontal = 10.dp)
                 )
                 Text(
-                    text = subtitle,
+                    text = item.subtitle,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(10.dp),
                     minLines = 2,
@@ -128,7 +153,7 @@ fun NewsCard(
 }
 
 @Composable
-fun VetCard() {
+fun VetCard(navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,7 +183,11 @@ fun VetCard() {
                 )
             }
             FilledTonalButton(
-                onClick = {},
+                onClick = {
+                    navController.navigate(NavigationItem.VetList.route) {
+                        launchSingleTop = true
+                    }
+                },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(10.dp),
@@ -173,6 +202,9 @@ fun VetCard() {
 @Composable
 fun ServicesScreenPreview() {
     IWUTheme {
-        ServicesScreen(viewModel = MainModel(), 40.dp)
+        ServicesScreen(
+            navController = rememberNavController(),
+            viewModel = MainModel(), 40.dp
+        )
     }
 }

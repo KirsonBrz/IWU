@@ -52,12 +52,15 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.kirson.iwu.components.IWULogo
 import com.kirson.iwu.entities.NavigationItem
 import com.kirson.iwu.screens.ChatScreen
+import com.kirson.iwu.screens.EmptyScreen
 import com.kirson.iwu.screens.LoginScreen
+import com.kirson.iwu.screens.NewsScreen
 import com.kirson.iwu.screens.PetsScreen
 import com.kirson.iwu.screens.ProfileScreen
 import com.kirson.iwu.screens.ReactionsScreen
 import com.kirson.iwu.screens.RegistrationScreen
 import com.kirson.iwu.screens.ServicesScreen
+import com.kirson.iwu.screens.VetScreen
 import com.kirson.iwu.ui.theme.md_theme_dark_background
 import com.kirson.iwu.ui.theme.md_theme_light_background
 import dagger.hilt.android.AndroidEntryPoint
@@ -107,36 +110,46 @@ fun MainScreen() {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val title = remember { mutableStateOf("") }
     val showTopBar = remember { mutableStateOf(false) }
+    val showBottomBar = remember { mutableStateOf(false) }
 
     val getTitle: (String) -> Unit = { screenTitle ->
         title.value = screenTitle
     }
-    val isNotPetScreen: (Boolean) -> Unit = { isNotPetScreen ->
-        showTopBar.value = isNotPetScreen
+    val showTopAppBar: (Boolean) -> Unit = { showBar ->
+        showTopBar.value = showBar
     }
+
+    val showBotBar: (Boolean) -> Unit = { showBar ->
+        showBottomBar.value = showBar
+    }
+
+
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            AnimatedVisibility(visible = showTopBar.value,
+            AnimatedVisibility(
+                visible = showTopBar.value,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
                 CenterAlignedTopAppBar(
-                    title = { Text(
-                        text = title.value,
-                        style = TextStyle(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.secondary
-                                )
+                    title = {
+                        Text(
+                            text = title.value,
+                            style = TextStyle(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.primary,
+                                        MaterialTheme.colorScheme.secondary
+                                    )
+                                ),
+                                fontWeight = FontWeight.Bold,
+                                fontStyle = FontStyle.Italic,
+                                fontSize = 28.sp,
                             ),
-                            fontWeight = FontWeight.Bold,
-                            fontStyle = FontStyle.Italic,
-                            fontSize = 28.sp,
-                        ),
-                    ) },
+                        )
+                    },
                     navigationIcon = {
                         IWULogo()
                     },
@@ -145,10 +158,26 @@ fun MainScreen() {
             }
 
         },
-        bottomBar = { BottomNavigationBar(navController) },
+        bottomBar = {
+            AnimatedVisibility(
+                visible = showBottomBar.value,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                BottomNavigationBar(navController)
+            }
+
+
+        },
         content = { padding ->
             Box(modifier = Modifier.padding(bottom = padding.calculateBottomPadding())) {
-                Navigation(topPadding = padding.calculateTopPadding(), navController = navController, getTitle, isNotPetScreen)
+                Navigation(
+                    topPadding = padding.calculateTopPadding(),
+                    navController = navController,
+                    getTitle,
+                    showTopAppBar,
+                    showBotBar
+                )
             }
         },
         // Set background color to avoid the white flashing when you switch between screens
@@ -168,7 +197,8 @@ fun Navigation(
     topPadding: Dp,
     navController: NavHostController,
     sendTitle: (String) -> Unit,
-    isNotPetScreen: (Boolean) -> Unit,
+    showTopBar: (Boolean) -> Unit,
+    showBottomBar: (Boolean) -> Unit,
     viewModel: MainModel = hiltViewModel()
 ) {
     NavHost(navController, startDestination = NavigationItem.Login.route) {
@@ -176,45 +206,71 @@ fun Navigation(
 
         composable(NavigationItem.Login.route) {
             sendTitle("")
-            isNotPetScreen(true)
+            showTopBar(true)
+            showBottomBar(false)
             LoginScreen(navController, topPadding)
         }
 
         composable(NavigationItem.Registration.route) {
             sendTitle("")
-            isNotPetScreen(true)
+            showTopBar(true)
+            showBottomBar(false)
             RegistrationScreen(navController, topPadding)
         }
 
         composable(NavigationItem.Pets.route) {
 
             sendTitle("")
-            isNotPetScreen(false)
-            PetsScreen(viewModel)
+            showTopBar(false)
+            showBottomBar(true)
+            PetsScreen(navController, viewModel)
         }
         composable(NavigationItem.Services.route) {
 
             sendTitle("Сервисы")
-            isNotPetScreen(true)
-            ServicesScreen(viewModel,topPadding = topPadding)
+            showTopBar(true)
+            showBottomBar(true)
+            ServicesScreen(navController, viewModel, topPadding = topPadding)
         }
         composable(NavigationItem.Reactions.route) {
             sendTitle("Реакции")
-            isNotPetScreen(true)
-            ReactionsScreen(viewModel,topPadding = topPadding)
+            showTopBar(true)
+            showBottomBar(true)
+            ReactionsScreen(navController, viewModel, topPadding = topPadding)
         }
         composable(NavigationItem.Chat.route) {
 
             sendTitle("Чат")
-            isNotPetScreen(true)
-            ChatScreen(viewModel, topPadding = topPadding)
+            showTopBar(true)
+            showBottomBar(true)
+            ChatScreen(navController, viewModel, topPadding = topPadding)
         }
         composable(NavigationItem.Profile.route) {
 
             sendTitle("Профиль")
-            isNotPetScreen(true)
-            ProfileScreen(viewModel, topPadding = topPadding)
+            showTopBar(true)
+            showBottomBar(true)
+            ProfileScreen(navController, viewModel, topPadding = topPadding)
         }
+        composable(NavigationItem.VetList.route) {
+            sendTitle("Ветеринары")
+            showTopBar(true)
+            showBottomBar(false)
+            VetScreen(navController, topPadding = topPadding)
+        }
+        composable(NavigationItem.News.route) {
+            sendTitle("")
+            showTopBar(false)
+            showBottomBar(false)
+            NewsScreen(viewModel, topPadding = topPadding)
+        }
+        composable(NavigationItem.Empty.route) {
+            sendTitle("")
+            showTopBar(false)
+            showBottomBar(false)
+            EmptyScreen(topPadding = topPadding)
+        }
+
     }
 }
 
